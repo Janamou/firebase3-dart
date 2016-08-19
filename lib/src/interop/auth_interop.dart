@@ -25,7 +25,7 @@ abstract class AuthJsImpl {
   external PromiseJsImpl sendPasswordResetEmail(String email);
   external PromiseJsImpl<UserJsImpl> signInAnonymously();
   external PromiseJsImpl<UserJsImpl> signInWithCredential(
-      AuthCredentialJsImpl credential);
+      AuthCredential credential);
   external PromiseJsImpl<UserJsImpl> signInWithCustomToken(String token);
   external PromiseJsImpl<UserJsImpl> signInWithEmailAndPassword(
       String email, String password);
@@ -36,8 +36,13 @@ abstract class AuthJsImpl {
   external PromiseJsImpl<String> verifyPasswordResetCode(String code);
 }
 
-@JS('AuthCredential')
-abstract class AuthCredentialJsImpl {
+/// Represents the credentials returned by an auth provider.
+/// Implementations specify the details about each auth provider's credential
+/// requirements.
+///
+/// See: <https://firebase.google.com/docs/reference/js/firebase.auth.AuthCredential>.
+@JS()
+abstract class AuthCredential {
   external String get provider;
   external void set provider(String s);
 }
@@ -52,7 +57,7 @@ abstract class AuthProviderJsImpl {
 class EmailAuthProviderJsImpl extends AuthProviderJsImpl {
   external EmailAuthProviderJsImpl();
   external static String get PROVIDER_ID;
-  external AuthCredentialJsImpl credential(String email, String password);
+  external static AuthCredential credential(String email, String password);
 }
 
 @JS('FacebookAuthProvider')
@@ -60,7 +65,7 @@ class FacebookAuthProviderJsImpl extends AuthProviderJsImpl {
   external FacebookAuthProviderJsImpl();
   external static String get PROVIDER_ID;
   external void addScope(String scope);
-  external AuthCredentialJsImpl credential(String token);
+  external static AuthCredential credential(String token);
 }
 
 @JS('GithubAuthProvider')
@@ -68,7 +73,7 @@ class GithubAuthProviderJsImpl extends AuthProviderJsImpl {
   external GithubAuthProviderJsImpl();
   external static String get PROVIDER_ID;
   external void addScope(String scope);
-  external AuthCredentialJsImpl credential(String token);
+  external static AuthCredential credential(String token);
 }
 
 @JS('GoogleAuthProvider')
@@ -76,7 +81,7 @@ class GoogleAuthProviderJsImpl extends AuthProviderJsImpl {
   external GoogleAuthProviderJsImpl();
   external static String get PROVIDER_ID;
   external void addScope(String scope);
-  external AuthCredentialJsImpl credential(
+  external static AuthCredential credential(
       [String idToken, String accessToken]);
 }
 
@@ -84,7 +89,7 @@ class GoogleAuthProviderJsImpl extends AuthProviderJsImpl {
 class TwitterAuthProviderJsImpl extends AuthProviderJsImpl {
   external TwitterAuthProviderJsImpl();
   external static String get PROVIDER_ID;
-  external AuthCredentialJsImpl credential(String token, String secret);
+  external static AuthCredential credential(String token, String secret);
 }
 
 @JS('ActionCodeInfo')
@@ -115,9 +120,9 @@ class ActionCodeEmailJsImpl {
 class UserCredentialJsImpl {
   external UserJsImpl get user;
   external void set user(UserJsImpl u);
-  external AuthCredentialJsImpl get credential;
-  external void set credential(AuthCredentialJsImpl c);
+  external AuthCredential get credential;
+  external void set credential(AuthCredential c);
 
   external factory UserCredentialJsImpl(
-      {UserJsImpl user, AuthCredentialJsImpl credential});
+      {UserJsImpl user, AuthCredential credential});
 }

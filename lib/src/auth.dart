@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:js/js.dart';
 
 import 'app.dart';
-import 'interop/auth_interop.dart' as auth_interop;
+import 'interop/auth_interop.dart';
 import 'interop/firebase_interop.dart' as firebase_interop;
 import 'js.dart';
 import 'utils.dart';
+
+export 'interop/auth_interop.dart' show AuthCredential;
 
 /// User profile information, visible only to the Firebase project's apps.
 ///
@@ -65,7 +67,7 @@ class User extends UserInfo<firebase_interop.UserJsImpl> {
       handleThenable(jsObject.getToken(opt_forceRefresh));
 
   Future<User> link(AuthCredential credential) => handleThenableWithMapper(
-      jsObject.link(credential.jsObject), (u) => new User.fromJsObject(u));
+      jsObject.link(credential), (u) => new User.fromJsObject(u));
 
   Future<UserCredential> linkWithPopup(AuthProvider provider) =>
       handleThenableWithMapper(jsObject.linkWithPopup(provider.jsObject),
@@ -75,7 +77,7 @@ class User extends UserInfo<firebase_interop.UserJsImpl> {
       handleThenable(jsObject.linkWithRedirect(provider.jsObject));
 
   Future reauthenticate(AuthCredential credential) =>
-      handleThenable(jsObject.reauthenticate(credential.jsObject));
+      handleThenable(jsObject.reauthenticate(credential));
 
   Future reload() => handleThenable(jsObject.reload());
 
@@ -119,7 +121,7 @@ class UserProfile extends JsObjectWrapper<firebase_interop.UserProfileJsImpl> {
 /// The Firebase Auth service class.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.Auth>.
-class Auth extends JsObjectWrapper<auth_interop.AuthJsImpl> {
+class Auth extends JsObjectWrapper<AuthJsImpl> {
   App _app;
   App get app {
     if (_app != null) {
@@ -170,8 +172,7 @@ class Auth extends JsObjectWrapper<auth_interop.AuthJsImpl> {
     return _onAuthStateChanged;
   }
 
-  Auth.fromJsObject(auth_interop.AuthJsImpl jsObject)
-      : super.fromJsObject(jsObject);
+  Auth.fromJsObject(AuthJsImpl jsObject) : super.fromJsObject(jsObject);
 
   Future applyActionCode(String code) =>
       handleThenable(jsObject.applyActionCode(code));
@@ -201,8 +202,7 @@ class Auth extends JsObjectWrapper<auth_interop.AuthJsImpl> {
       jsObject.signInAnonymously(), (u) => new User.fromJsObject(u));
 
   Future<User> signInWithCredential(AuthCredential credential) =>
-      handleThenableWithMapper(
-          jsObject.signInWithCredential(credential.jsObject),
+      handleThenableWithMapper(jsObject.signInWithCredential(credential),
           (u) => new User.fromJsObject(u));
 
   Future<User> signInWithCustomToken(String token) => handleThenableWithMapper(
@@ -228,30 +228,14 @@ class Auth extends JsObjectWrapper<auth_interop.AuthJsImpl> {
 
 /// Event propagated in Stream controllers when auth state changes.
 class AuthEvent {
-  User user;
+  final User user;
   AuthEvent(this.user);
-}
-
-/// Represents the credentials returned by an auth provider.
-/// Implementations specify the details about each auth provider's credential
-/// requirements.
-///
-/// See: <https://firebase.google.com/docs/reference/js/firebase.auth.AuthCredential>.
-class AuthCredential
-    extends JsObjectWrapper<auth_interop.AuthCredentialJsImpl> {
-  String get provider => jsObject.provider;
-  void set provider(String s) {
-    jsObject.provider = s;
-  }
-
-  AuthCredential.fromJsObject(auth_interop.AuthCredentialJsImpl jsObject)
-      : super.fromJsObject(jsObject);
 }
 
 /// Represents an auth provider.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.AuthProvider>.
-abstract class AuthProvider<T extends auth_interop.AuthProviderJsImpl>
+abstract class AuthProvider<T extends AuthProviderJsImpl>
     extends JsObjectWrapper<T> {
   String get providerId => jsObject.providerId;
   void set providerId(String s) {
@@ -264,106 +248,93 @@ abstract class AuthProvider<T extends auth_interop.AuthProviderJsImpl>
 /// Email and password auth provider implementation.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.EmailAuthProvider>.
-class EmailAuthProvider
-    extends AuthProvider<auth_interop.EmailAuthProviderJsImpl> {
-  static String PROVIDER_ID = auth_interop.EmailAuthProviderJsImpl.PROVIDER_ID;
+class EmailAuthProvider extends AuthProvider<EmailAuthProviderJsImpl> {
+  static String PROVIDER_ID = EmailAuthProviderJsImpl.PROVIDER_ID;
 
-  EmailAuthProvider.fromJsObject(auth_interop.EmailAuthProviderJsImpl jsObject)
+  EmailAuthProvider.fromJsObject(EmailAuthProviderJsImpl jsObject)
       : super.fromJsObject(jsObject);
 
-  factory EmailAuthProvider() => new EmailAuthProvider.fromJsObject(
-      new auth_interop.EmailAuthProviderJsImpl());
+  factory EmailAuthProvider() =>
+      new EmailAuthProvider.fromJsObject(new EmailAuthProviderJsImpl());
 
-  AuthCredential credential(String email, String password) =>
-      new AuthCredential.fromJsObject(jsObject.credential(email, password));
+  static AuthCredential credential(String email, String password) =>
+      EmailAuthProviderJsImpl.credential(email, password);
 }
 
 /// Facebook auth provider.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.FacebookAuthProvider>.
-class FacebookAuthProvider
-    extends AuthProvider<auth_interop.FacebookAuthProviderJsImpl> {
-  static String PROVIDER_ID =
-      auth_interop.FacebookAuthProviderJsImpl.PROVIDER_ID;
+class FacebookAuthProvider extends AuthProvider<FacebookAuthProviderJsImpl> {
+  static String PROVIDER_ID = FacebookAuthProviderJsImpl.PROVIDER_ID;
 
-  FacebookAuthProvider.fromJsObject(
-      auth_interop.FacebookAuthProviderJsImpl jsObject)
+  FacebookAuthProvider.fromJsObject(FacebookAuthProviderJsImpl jsObject)
       : super.fromJsObject(jsObject);
 
-  factory FacebookAuthProvider() => new FacebookAuthProvider.fromJsObject(
-      new auth_interop.FacebookAuthProviderJsImpl());
+  factory FacebookAuthProvider() =>
+      new FacebookAuthProvider.fromJsObject(new FacebookAuthProviderJsImpl());
 
   void addScope(String scope) => jsObject.addScope(scope);
 
-  AuthCredential credential(String token) =>
-      new AuthCredential.fromJsObject(jsObject.credential(token));
+  static AuthCredential credential(String token) =>
+      FacebookAuthProviderJsImpl.credential(token);
 }
 
 /// Github auth provider.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.GithubAuthProvider>.
-class GithubAuthProvider
-    extends AuthProvider<auth_interop.GithubAuthProviderJsImpl> {
-  static String PROVIDER_ID = auth_interop.GithubAuthProviderJsImpl.PROVIDER_ID;
+class GithubAuthProvider extends AuthProvider<GithubAuthProviderJsImpl> {
+  static String PROVIDER_ID = GithubAuthProviderJsImpl.PROVIDER_ID;
 
-  GithubAuthProvider.fromJsObject(
-      auth_interop.GithubAuthProviderJsImpl jsObject)
+  GithubAuthProvider.fromJsObject(GithubAuthProviderJsImpl jsObject)
       : super.fromJsObject(jsObject);
 
-  factory GithubAuthProvider() => new GithubAuthProvider.fromJsObject(
-      new auth_interop.GithubAuthProviderJsImpl());
+  factory GithubAuthProvider() =>
+      new GithubAuthProvider.fromJsObject(new GithubAuthProviderJsImpl());
 
   void addScope(String scope) => jsObject.addScope(scope);
 
-  AuthCredential credential(String token) =>
-      new AuthCredential.fromJsObject(jsObject.credential(token));
+  static AuthCredential credential(String token) =>
+      GithubAuthProviderJsImpl.credential(token);
 }
 
 /// Google auth provider.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.GoogleAuthProvider>.
-class GoogleAuthProvider
-    extends AuthProvider<auth_interop.GoogleAuthProviderJsImpl> {
-  static String PROVIDER_ID = auth_interop.GoogleAuthProviderJsImpl.PROVIDER_ID;
+class GoogleAuthProvider extends AuthProvider<GoogleAuthProviderJsImpl> {
+  static String PROVIDER_ID = GoogleAuthProviderJsImpl.PROVIDER_ID;
 
-  GoogleAuthProvider.fromJsObject(
-      auth_interop.GoogleAuthProviderJsImpl jsObject)
+  GoogleAuthProvider.fromJsObject(GoogleAuthProviderJsImpl jsObject)
       : super.fromJsObject(jsObject);
 
-  factory GoogleAuthProvider() => new GoogleAuthProvider.fromJsObject(
-      new auth_interop.GoogleAuthProviderJsImpl());
+  factory GoogleAuthProvider() =>
+      new GoogleAuthProvider.fromJsObject(new GoogleAuthProviderJsImpl());
 
   void addScope(String scope) => jsObject.addScope(scope);
 
-  AuthCredential credential([String idToken, String accessToken]) =>
-      new AuthCredential.fromJsObject(
-          jsObject.credential(idToken, accessToken));
+  static AuthCredential credential([String idToken, String accessToken]) =>
+      GoogleAuthProviderJsImpl.credential(idToken, accessToken);
 }
 
 /// Twitter auth provider.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.TwitterAuthProvider>.
-class TwitterAuthProvider
-    extends AuthProvider<auth_interop.TwitterAuthProviderJsImpl> {
-  static String PROVIDER_ID =
-      auth_interop.TwitterAuthProviderJsImpl.PROVIDER_ID;
+class TwitterAuthProvider extends AuthProvider<TwitterAuthProviderJsImpl> {
+  static String PROVIDER_ID = TwitterAuthProviderJsImpl.PROVIDER_ID;
 
-  TwitterAuthProvider.fromJsObject(
-      auth_interop.TwitterAuthProviderJsImpl jsObject)
+  TwitterAuthProvider.fromJsObject(TwitterAuthProviderJsImpl jsObject)
       : super.fromJsObject(jsObject);
 
-  factory TwitterAuthProvider() => new TwitterAuthProvider.fromJsObject(
-      new auth_interop.TwitterAuthProviderJsImpl());
+  factory TwitterAuthProvider() =>
+      new TwitterAuthProvider.fromJsObject(new TwitterAuthProviderJsImpl());
 
-  AuthCredential credential([String token, String secret]) =>
-      new AuthCredential.fromJsObject(jsObject.credential(token, secret));
+  static AuthCredential credential([String token, String secret]) =>
+      TwitterAuthProviderJsImpl.credential(token, secret);
 }
 
 /// A response from [Auth.checkActionCode].
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.ActionCodeInfo>.
-class ActionCodeInfo
-    extends JsObjectWrapper<auth_interop.ActionCodeInfoJsImpl> {
+class ActionCodeInfo extends JsObjectWrapper<ActionCodeInfoJsImpl> {
   ActionCodeEmail _data;
   ActionCodeEmail get data {
     if (_data != null) {
@@ -379,14 +350,14 @@ class ActionCodeInfo
     jsObject.data = a.jsObject;
   }
 
-  ActionCodeInfo.fromJsObject(auth_interop.ActionCodeInfoJsImpl jsObject)
+  ActionCodeInfo.fromJsObject(ActionCodeInfoJsImpl jsObject)
       : super.fromJsObject(jsObject);
 }
 
 /// An authentication error.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase.auth.Error>.
-class AuthError extends JsObjectWrapper<auth_interop.ErrorJsImpl> {
+class AuthError extends JsObjectWrapper<ErrorJsImpl> {
   String get code => jsObject.code;
   void set code(String s) {
     jsObject.code = s;
@@ -397,28 +368,25 @@ class AuthError extends JsObjectWrapper<auth_interop.ErrorJsImpl> {
     jsObject.message = s;
   }
 
-  AuthError.fromJsObject(auth_interop.ErrorJsImpl jsObject)
-      : super.fromJsObject(jsObject);
+  AuthError.fromJsObject(ErrorJsImpl jsObject) : super.fromJsObject(jsObject);
 }
 
 /// A structure containing data for [ActionCodeInfo].
-class ActionCodeEmail
-    extends JsObjectWrapper<auth_interop.ActionCodeEmailJsImpl> {
+class ActionCodeEmail extends JsObjectWrapper<ActionCodeEmailJsImpl> {
   String get email => jsObject.email;
   void set email(String s) {
     jsObject.email = s;
   }
 
-  ActionCodeEmail.fromJsObject(auth_interop.ActionCodeEmailJsImpl jsObject)
+  ActionCodeEmail.fromJsObject(ActionCodeEmailJsImpl jsObject)
       : super.fromJsObject(jsObject);
 
-  factory ActionCodeEmail({String email}) => new ActionCodeEmail.fromJsObject(
-      new auth_interop.ActionCodeEmailJsImpl(email: email));
+  factory ActionCodeEmail({String email}) =>
+      new ActionCodeEmail.fromJsObject(new ActionCodeEmailJsImpl(email: email));
 }
 
 /// A structure containing [User] and [AuthCredential].
-class UserCredential
-    extends JsObjectWrapper<auth_interop.UserCredentialJsImpl> {
+class UserCredential extends JsObjectWrapper<UserCredentialJsImpl> {
   User _user;
   User get user {
     if (jsObject.user != null) {
@@ -438,29 +406,16 @@ class UserCredential
     jsObject.user = u.jsObject;
   }
 
-  AuthCredential _credential;
-  AuthCredential get credential {
-    if (jsObject.credential != null) {
-      if (_credential != null) {
-        _credential.jsObject = jsObject.credential;
-      } else {
-        _credential = new AuthCredential.fromJsObject(jsObject.credential);
-      }
-    } else {
-      _credential = null;
-    }
-    return _credential;
-  }
+  AuthCredential get credential => jsObject.credential;
 
   void set credential(AuthCredential c) {
-    _credential = c;
-    jsObject.credential = c.jsObject;
+    jsObject.credential = c;
   }
 
-  UserCredential.fromJsObject(auth_interop.UserCredentialJsImpl jsObject)
+  UserCredential.fromJsObject(UserCredentialJsImpl jsObject)
       : super.fromJsObject(jsObject);
 
   factory UserCredential({User user, AuthCredential credential}) =>
-      new UserCredential.fromJsObject(new auth_interop.UserCredentialJsImpl(
-          user: user.jsObject, credential: credential.jsObject));
+      new UserCredential.fromJsObject(new UserCredentialJsImpl(
+          user: user.jsObject, credential: credential));
 }
