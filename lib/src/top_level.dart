@@ -3,6 +3,7 @@ import 'auth.dart';
 import 'database.dart';
 import 'interop/firebase_interop.dart' as firebase;
 import 'storage.dart';
+import 'messaging.dart';
 
 export 'interop/firebase_interop.dart' show SDK_VERSION;
 
@@ -111,4 +112,21 @@ Storage storage([App app]) {
     _storage = new Storage.fromJsObject(jsObject);
   }
   return _storage;
+}
+
+Messaging _messaging;
+/// Creates an object to access the [Messaging] service for the default App
+/// or a given app.
+///
+/// See: <https://firebase.google.com/docs/reference/js/firebase.messaging>
+Messaging messaging([App app]) {
+  var jsObject =
+      (app != null) ? firebase.messaging(app.jsObject) : firebase.messaging();
+
+  if (_messaging != null) {
+    _messaging.jsObject = jsObject;
+  } else {
+    _messaging = new Messaging.fromJsObject(jsObject);
+  }
+  return _messaging;
 }

@@ -8,6 +8,7 @@ import 'app_interop.dart';
 import 'auth_interop.dart';
 import 'database_interop.dart';
 import 'storage_interop.dart';
+import 'messaging_interop.dart';
 
 external List<AppJsImpl> get apps;
 
@@ -21,6 +22,7 @@ external AppJsImpl app([String name]);
 external AuthJsImpl auth([AppJsImpl app]);
 external DatabaseJsImpl database([AppJsImpl app]);
 external StorageJsImpl storage([AppJsImpl app]);
+external MessagingJsImpl messaging([AppJsImpl app]);
 
 @JS('User')
 abstract class UserJsImpl extends UserInfoJsImpl {
