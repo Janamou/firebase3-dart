@@ -1,5 +1,6 @@
-## 0.3.0
+## 0.2.3
 
+- *BREAKING* This library is now deprecated and moved to [firebase-dart](https://github.com/firebase/firebase-dart/).
 - Update to Firebase 3.6.2.
 - Support for custom OAuth parameters with `GoogleAuthProvider.setCustomParameters()`,
   `FacebookAuthProvider.setCustomParameters()`, `GithubAuthProvider.setCustomParameters()` and
