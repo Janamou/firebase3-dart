@@ -1,5 +1,5 @@
 name: firebase3
-description: DEPRECATED: Dart wrapper library for the new Firebase.
+description: DEPRECATED Dart wrapper library for the new Firebase.
 version: 0.2.3-dev
 author: Jana Moudra <jana.moudra@gmail.com>
 homepage: https://github.com/Janamou/firebase3-dart
