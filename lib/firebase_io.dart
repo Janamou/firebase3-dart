@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 ///
 /// The client supports authentication and GET, PUT, POST, DELETE
 /// and PATCH methods.
+@Deprecated("use package:firebase instead")
 class FirebaseClient {
   /// Auth credential.
   final String credential;

@@ -2,6 +2,7 @@
 /// services are accessed.
 ///
 /// See: <https://firebase.google.com/docs/reference/js/firebase>.
+@Deprecated("use package:firebase instead")
 library firebase3;
 
 export 'src/app.dart';
