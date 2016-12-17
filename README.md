@@ -6,5 +6,5 @@ Please update your `pubspec.yaml` file to `firebase` dependency, do the `pub get
 
 ```
 dependencies:
-  firebase: any
+  firebase: '^3.0.0'
 ```
